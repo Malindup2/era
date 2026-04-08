@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { User, Mail, Lock, Building, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import api from '@/lib/api';
@@ -44,13 +43,6 @@ export default function RegisterPage() {
 
   return (
     <div>
-      <div className="mb-6 flex flex-col items-center gap-3 text-center">
-        <div className="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center shadow-sm p-2">
-          <Image src="/logo.svg" alt="ERA Biz logo" width={40} height={40} className="h-auto w-auto" priority />
-        </div>
-        <h2 className="text-2xl font-bold text-gray-800">Join SkillTech POS</h2>
-      </div>
-      
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl flex items-center gap-2 text-sm">
