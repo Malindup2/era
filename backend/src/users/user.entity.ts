@@ -17,6 +17,9 @@ export class User {
   @Column({ nullable: true })
   company: string;
 
+  @Column({ default: 'Administrator' })
+  role: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Plus, Trash2, ArrowLeft, Save } from 'lucide-react';
 import api from '@/lib/api';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 
 interface Customer {
   id: number;
@@ -94,7 +95,7 @@ const NewQuotationPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!customerId) return alert('Please select a customer');
+    if (!customerId) return toast.error('Please select a customer');
 
     try {
       const payload = {
@@ -112,10 +113,11 @@ const NewQuotationPage = () => {
       };
 
       await api.post('/quotations', payload);
+      toast.success('Quotation created successfully!');
       router.push('/sales/quotations');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to create quotation', error);
-      alert('An error occurred during quotation creation.');
+      toast.error(error.response?.data?.message || 'An error occurred during quotation creation.');
     }
   };
 
@@ -138,7 +140,7 @@ const NewQuotationPage = () => {
             Cancel
           </button>
           <button 
-            onClick={handleSubmit}
+            type="submit"
             className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-indigo-200"
           >
             <Save size={20} />
@@ -154,7 +156,7 @@ const NewQuotationPage = () => {
             <select 
               value={customerId}
               onChange={(e) => setCustomerId(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 bg-white text-sm outline-hidden transition-all"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 outline-hidden transition-all text-sm text-gray-900 placeholder:text-gray-400"
             >
               <option value="">Select Customer</option>
               {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -166,7 +168,7 @@ const NewQuotationPage = () => {
               type="date"
               value={quotationDate}
               onChange={(e) => setQuotationDate(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 outline-hidden transition-all text-sm"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 outline-hidden transition-all text-sm text-gray-900"
             />
           </div>
           <div className="space-y-2">
@@ -175,7 +177,7 @@ const NewQuotationPage = () => {
               type="date"
               value={expiryDate}
               onChange={(e) => setExpiryDate(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 outline-hidden transition-all text-sm"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 outline-hidden transition-all text-sm text-gray-900"
             />
           </div>
         </div>
@@ -200,7 +202,7 @@ const NewQuotationPage = () => {
                   <select 
                     value={item.itemId}
                     onChange={(e) => updateLineItem(index, 'itemId', e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 outline-hidden text-sm bg-white"
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 outline-hidden text-sm bg-white text-gray-900"
                   >
                     <option value="0">Select Item</option>
                     {availableItems.map(ai => <option key={ai.id} value={ai.id}>{ai.name}</option>)}
@@ -211,7 +213,7 @@ const NewQuotationPage = () => {
                   <input 
                     value={item.description}
                     onChange={(e) => updateLineItem(index, 'description', e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 outline-hidden text-sm"
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 outline-hidden text-sm text-gray-900 placeholder:text-gray-400"
                     placeholder="Auto-filled or manual..."
                   />
                 </div>
@@ -221,7 +223,7 @@ const NewQuotationPage = () => {
                     type="number"
                     value={item.quantity}
                     onChange={(e) => updateLineItem(index, 'quantity', e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 outline-hidden text-sm"
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 outline-hidden text-sm text-gray-900"
                   />
                 </div>
                 <div className="col-span-2 space-y-1">
@@ -230,7 +232,7 @@ const NewQuotationPage = () => {
                     type="number"
                     value={item.unitPrice}
                     onChange={(e) => updateLineItem(index, 'unitPrice', e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 outline-hidden text-sm"
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 outline-hidden text-sm text-gray-900"
                   />
                 </div>
                 <div className="col-span-1 space-y-1">
@@ -239,7 +241,7 @@ const NewQuotationPage = () => {
                     type="number"
                     value={item.taxRate}
                     onChange={(e) => updateLineItem(index, 'taxRate', e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 outline-hidden text-sm"
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 outline-hidden text-sm text-gray-900"
                   />
                 </div>
                 <div className="col-span-1 space-y-1">
@@ -269,7 +271,7 @@ const NewQuotationPage = () => {
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={4}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 outline-hidden transition-all text-sm resize-none"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 outline-hidden transition-all text-sm resize-none text-gray-900 placeholder:text-gray-400"
               placeholder="This quotation is valid for 30 days."
             />
           </div>

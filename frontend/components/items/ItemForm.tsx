@@ -3,6 +3,7 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import api from '@/lib/api';
+import { toast } from 'react-hot-toast';
 
 interface ItemFormData {
   name: string;
@@ -29,10 +30,11 @@ export const ItemForm = ({ onSuccess, onCancel }: ItemFormProps) => {
   const onSubmit = async (data: ItemFormData) => {
     try {
       await api.post('/items', data);
+      toast.success('Item created successfully!');
       onSuccess();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to create item', error);
-      alert('An error occurred while creating the item.');
+      toast.error(error.response?.data?.message || 'Failed to create item');
     }
   };
 
@@ -43,7 +45,7 @@ export const ItemForm = ({ onSuccess, onCancel }: ItemFormProps) => {
           <label className="text-sm font-bold text-gray-700">Item Name *</label>
           <input 
             {...register('name', { required: 'Name is required' })}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50 outline-hidden transition-all text-sm"
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50 outline-hidden transition-all text-sm text-gray-900 placeholder:text-gray-400"
             placeholder="e.g. Wireless Mouse"
           />
           {errors.name && <p className="text-xs text-rose-500 font-medium">{errors.name.message}</p>}
@@ -52,7 +54,7 @@ export const ItemForm = ({ onSuccess, onCancel }: ItemFormProps) => {
           <label className="text-sm font-bold text-gray-700">Item Code *</label>
           <input 
             {...register('code', { required: 'Code is required' })}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50 outline-hidden transition-all text-sm"
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50 outline-hidden transition-all text-sm text-gray-900 placeholder:text-gray-400"
             placeholder="ITEM-001"
           />
           {errors.code && <p className="text-xs text-rose-500 font-medium">{errors.code.message}</p>}
@@ -64,7 +66,7 @@ export const ItemForm = ({ onSuccess, onCancel }: ItemFormProps) => {
           <label className="text-sm font-bold text-gray-700">Type</label>
           <select 
             {...register('type')}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50 outline-hidden transition-all text-sm bg-white"
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50 outline-hidden transition-all text-sm bg-white text-gray-900"
           >
             <option value="product">Product</option>
             <option value="service">Service</option>
@@ -76,7 +78,7 @@ export const ItemForm = ({ onSuccess, onCancel }: ItemFormProps) => {
             {...register('salePrice', { required: 'Price is required', valueAsNumber: true })}
             type="number"
             step="0.01"
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50 outline-hidden transition-all text-sm"
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50 outline-hidden transition-all text-sm text-gray-900 placeholder:text-gray-400"
             placeholder="0.00"
           />
           {errors.salePrice && <p className="text-xs text-rose-500 font-medium">{errors.salePrice.message}</p>}
@@ -87,7 +89,7 @@ export const ItemForm = ({ onSuccess, onCancel }: ItemFormProps) => {
         <label className="text-sm font-bold text-gray-700">Sale Tax</label>
         <select 
           {...register('saleTax')}
-          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50 outline-hidden transition-all text-sm bg-white"
+          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50 outline-hidden transition-all text-sm bg-white text-gray-900"
         >
           <option value="No Tax">No Tax</option>
           <option value="VAT 15%">VAT 15%</option>
@@ -100,7 +102,7 @@ export const ItemForm = ({ onSuccess, onCancel }: ItemFormProps) => {
         <textarea 
           {...register('description')}
           rows={3}
-          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50 outline-hidden transition-all text-sm resize-none"
+          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50 outline-hidden transition-all text-sm resize-none text-gray-900 placeholder:text-gray-400"
           placeholder="Enter item description..."
         />
       </div>

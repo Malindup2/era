@@ -5,7 +5,9 @@ import { Table } from '@/components/ui/Table';
 import { Modal } from '@/components/ui/Modal';
 import { CustomerForm } from '@/components/customers/CustomerForm';
 import api from '@/lib/api';
-import { Plus, Search, Mail, Phone, MapPin, MoreHorizontal } from 'lucide-react';
+import { Plus, Search, Mail, Phone, MapPin, MoreHorizontal, User } from 'lucide-react';
+import Link from 'next/link';
+
 
 interface Customer {
   id: number;

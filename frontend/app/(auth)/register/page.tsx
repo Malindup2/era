@@ -60,7 +60,7 @@ export default function RegisterPage() {
             <input
               {...register('name', { required: 'Name is required' })}
               type="text"
-              className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-hidden"
+              className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-hidden text-gray-900 placeholder:text-gray-400"
               placeholder="John Doe"
             />
           </div>
@@ -74,7 +74,7 @@ export default function RegisterPage() {
             <input
               {...register('company', { required: 'Company name is required' })}
               type="text"
-              className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-hidden"
+              className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-hidden text-gray-900 placeholder:text-gray-400"
               placeholder="SkillTech Ltd"
             />
           </div>
@@ -88,7 +88,7 @@ export default function RegisterPage() {
             <input
               {...register('email', { required: 'Email is required' })}
               type="email"
-              className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-hidden"
+              className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-hidden text-gray-900 placeholder:text-gray-400"
               placeholder="name@company.com"
             />
           </div>
@@ -105,7 +105,7 @@ export default function RegisterPage() {
                 minLength: { value: 6, message: 'Password must be at least 6 characters' }
               })}
               type="password"
-              className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-hidden"
+              className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-hidden text-gray-900 placeholder:text-gray-400"
               placeholder="••••••••"
             />
           </div>

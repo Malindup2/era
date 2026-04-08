@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import { Bell, Search, User, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import api from '@/lib/api';
 
 export default function DashboardLayout({
   children,
@@ -12,6 +13,7 @@ export default function DashboardLayout({
 }) {
   const router = useRouter();
   const [isAuth, setIsAuth] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -19,8 +21,18 @@ export default function DashboardLayout({
       router.push('/login');
     } else {
       setIsAuth(true);
+      fetchProfile();
     }
   }, [router]);
+
+  const fetchProfile = async () => {
+    try {
+      const res = await api.get('/auth/profile');
+      setUser(res.data);
+    } catch (error) {
+      console.error('Failed to fetch profile', error);
+    }
+  };
 
   if (!isAuth) {
     return (
@@ -55,13 +67,14 @@ export default function DashboardLayout({
 
             <div className="flex items-center gap-3 pl-4 border-l border-gray-100">
               <div className="text-right">
-                <p className="text-sm font-bold text-gray-900">John Doe</p>
-                <p className="text-xs text-gray-500">Administrator</p>
+                <p className="text-sm font-bold text-gray-900">{user?.name || 'Loading...'}</p>
+                <p className="text-xs text-gray-500">{user?.role || 'Accessing...'}</p>
               </div>
               <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 border border-indigo-200">
                 <User size={20} />
               </div>
             </div>
+
           </div>
         </header>
 

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { toast } from 'react-hot-toast';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
@@ -26,6 +27,7 @@ api.interceptors.response.use(
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
+        toast.error('Session expired. Please log in again.');
         window.location.href = '/login?error=session_expired';
       }
     }

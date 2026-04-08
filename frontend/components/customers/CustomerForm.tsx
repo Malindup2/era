@@ -3,6 +3,7 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import api from '@/lib/api';
+import { toast } from 'react-hot-toast';
 
 interface CustomerFormData {
   name: string;
@@ -22,10 +23,11 @@ export const CustomerForm = ({ onSuccess, onCancel }: CustomerFormProps) => {
   const onSubmit = async (data: CustomerFormData) => {
     try {
       await api.post('/customers', data);
+      toast.success('Customer created successfully!');
       onSuccess();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to create customer', error);
-      alert('An error occurred while creating the customer.');
+      toast.error(error.response?.data?.message || 'Failed to create customer');
     }
   };
 
@@ -35,7 +37,7 @@ export const CustomerForm = ({ onSuccess, onCancel }: CustomerFormProps) => {
         <label className="text-sm font-bold text-gray-700">Customer Name *</label>
         <input 
           {...register('name', { required: 'Name is required' })}
-          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50 outline-hidden transition-all text-sm"
+          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50 outline-hidden transition-all text-sm text-gray-900 placeholder:text-gray-400"
           placeholder="e.g. Acme Corp"
         />
         {errors.name && <p className="text-xs text-rose-500 font-medium">{errors.name.message}</p>}
@@ -47,7 +49,7 @@ export const CustomerForm = ({ onSuccess, onCancel }: CustomerFormProps) => {
           <input 
             {...register('email')}
             type="email"
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50 outline-hidden transition-all text-sm"
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50 outline-hidden transition-all text-sm text-gray-900 placeholder:text-gray-400"
             placeholder="contact@acme.com"
           />
         </div>
@@ -55,7 +57,7 @@ export const CustomerForm = ({ onSuccess, onCancel }: CustomerFormProps) => {
           <label className="text-sm font-bold text-gray-700">Phone</label>
           <input 
             {...register('phone')}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50 outline-hidden transition-all text-sm"
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50 outline-hidden transition-all text-sm text-gray-900 placeholder:text-gray-400"
             placeholder="+1 555-0123"
           />
         </div>
@@ -66,7 +68,7 @@ export const CustomerForm = ({ onSuccess, onCancel }: CustomerFormProps) => {
         <textarea 
           {...register('address')}
           rows={3}
-          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50 outline-hidden transition-all text-sm resize-none"
+          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50 outline-hidden transition-all text-sm resize-none text-gray-900 placeholder:text-gray-400"
           placeholder="Enter billing address..."
         />
       </div>

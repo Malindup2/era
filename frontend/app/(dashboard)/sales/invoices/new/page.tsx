@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Plus, Trash2, ArrowLeft, Save, Send } from 'lucide-react';
 import api from '@/lib/api';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 
 interface Customer {
   id: number;
@@ -95,8 +96,10 @@ const NewInvoicePage = () => {
   const total = subtotal + taxTotal;
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!customerId) return alert('Please select a customer');
+    if (!customerId) {
+      toast.error('Please select a customer before saving.');
+      return;
+    }
 
     try {
       const payload = {
@@ -114,10 +117,11 @@ const NewInvoicePage = () => {
       };
 
       await api.post('/invoices', payload);
+      toast.success('Invoice created successfully');
       router.push('/sales/invoices');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to create invoice', error);
-      alert('An error occurred during invoice creation.');
+      toast.error(error.response?.data?.message || 'An error occurred during invoice creation.');
     }
   };
 
@@ -140,7 +144,7 @@ const NewInvoicePage = () => {
             Cancel
           </button>
           <button 
-            onClick={handleSubmit}
+            type="submit"
             className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-indigo-200"
           >
             <Save size={20} />
@@ -157,7 +161,7 @@ const NewInvoicePage = () => {
             <select 
               value={customerId}
               onChange={(e) => setCustomerId(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50 outline-hidden transition-all text-sm bg-white"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50 outline-hidden transition-all text-sm text-gray-900 placeholder:text-gray-400"
             >
               <option value="">Select Customer</option>
               {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -169,7 +173,7 @@ const NewInvoicePage = () => {
               type="date"
               value={invoiceDate}
               onChange={(e) => setInvoiceDate(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50 outline-hidden transition-all text-sm"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50 outline-hidden transition-all text-sm text-gray-900"
             />
           </div>
           <div className="space-y-2">
@@ -178,7 +182,7 @@ const NewInvoicePage = () => {
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50 outline-hidden transition-all text-sm"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50 outline-hidden transition-all text-sm text-gray-900"
             />
           </div>
         </div>
@@ -204,7 +208,7 @@ const NewInvoicePage = () => {
                   <select 
                     value={item.itemId}
                     onChange={(e) => updateLineItem(index, 'itemId', e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 outline-hidden text-sm bg-white"
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 outline-hidden text-sm bg-white text-gray-900"
                   >
                     <option value="0">Select Item</option>
                     {availableItems.map(ai => <option key={ai.id} value={ai.id}>{ai.name}</option>)}
@@ -215,7 +219,7 @@ const NewInvoicePage = () => {
                   <input 
                     value={item.description}
                     onChange={(e) => updateLineItem(index, 'description', e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 outline-hidden text-sm"
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 outline-hidden text-sm text-gray-900 placeholder:text-gray-400"
                     placeholder="Auto-filled or manual..."
                   />
                 </div>
@@ -225,7 +229,7 @@ const NewInvoicePage = () => {
                     type="number"
                     value={item.quantity}
                     onChange={(e) => updateLineItem(index, 'quantity', e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 outline-hidden text-sm"
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 outline-hidden text-sm text-gray-900"
                   />
                 </div>
                 <div className="col-span-2 space-y-1">
@@ -234,7 +238,7 @@ const NewInvoicePage = () => {
                     type="number"
                     value={item.unitPrice}
                     onChange={(e) => updateLineItem(index, 'unitPrice', e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 outline-hidden text-sm"
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 outline-hidden text-sm text-gray-900"
                   />
                 </div>
                 <div className="col-span-1 space-y-1">
@@ -243,7 +247,7 @@ const NewInvoicePage = () => {
                     type="number"
                     value={item.taxRate}
                     onChange={(e) => updateLineItem(index, 'taxRate', e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 outline-hidden text-sm"
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 outline-hidden text-sm text-gray-900"
                   />
                 </div>
                 <div className="col-span-1 space-y-1">
@@ -275,7 +279,7 @@ const NewInvoicePage = () => {
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={4}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 outline-hidden transition-all text-sm resize-none"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 outline-hidden transition-all text-sm resize-none text-gray-900 placeholder:text-gray-400"
                 placeholder="Thanks for your business!"
               />
             </div>

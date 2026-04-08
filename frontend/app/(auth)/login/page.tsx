@@ -48,7 +48,7 @@ export default function LoginPage() {
             <input
               {...register('email', { required: 'Email is required' })}
               type="email"
-              className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-hidden"
+              className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-hidden text-gray-900 placeholder:text-gray-400"
               placeholder="name@company.com"
             />
           </div>
@@ -62,7 +62,7 @@ export default function LoginPage() {
             <input
               {...register('password', { required: 'Password is required' })}
               type="password"
-              className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-hidden"
+              className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-hidden text-gray-900 placeholder:text-gray-400"
               placeholder="••••••••"
             />
           </div>

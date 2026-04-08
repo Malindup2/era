@@ -11,17 +11,43 @@ import {
   ResponsiveContainer 
 } from 'recharts';
 
-//just to check FE willimplement fetch later
-const data = [
-  { month: 'Jan', incoming: 4000, outgoing: 2400 },
-  { month: 'Feb', incoming: 3000, outgoing: 1398 },
-  { month: 'Mar', incoming: 2000, outgoing: 3800 },
-  { month: 'Apr', incoming: 2780, outgoing: 3908 },
-  { month: 'May', incoming: 1890, outgoing: 4800 },
-  { month: 'Jun', incoming: 2390, outgoing: 3800 },
-];
+import api from '@/lib/api';
+import { useState, useEffect } from 'react';
+
+interface CashFlowData {
+  month: string;
+  incoming: number;
+  outgoing: number;
+}
 
 const CashFlowChart = () => {
+  const [data, setData] = useState<CashFlowData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    const fetchCashFlow = async () => {
+      try {
+        const res = await api.get('/dashboard/cash-flow');
+        setData(res.data);
+      } catch (error) {
+        console.error('Failed to fetch cash flow data', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCashFlow();
+  }, []);
+
+  if (!isMounted || loading) {
+    return (
+      <div className="h-full w-full flex items-center justify-center bg-gray-50 rounded-3xl animate-pulse">
+        <p className="text-gray-400 font-bold text-sm tracking-tight">Analyzing cash flow...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="h-full w-full">
       <ResponsiveContainer width="100%" height="100%">
@@ -51,16 +77,17 @@ const CashFlowChart = () => {
           />
           <Tooltip 
             contentStyle={{ 
-              borderRadius: '12px', 
+              borderRadius: '20px', 
               border: 'none', 
-              boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' 
+              boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)',
+              padding: '16px'
             }}
           />
           <Area 
             type="monotone" 
             dataKey="incoming" 
             stroke="#4f46e5" 
-            strokeWidth={3}
+            strokeWidth={4}
             fillOpacity={1} 
             fill="url(#colorIncoming)" 
           />
@@ -68,7 +95,7 @@ const CashFlowChart = () => {
             type="monotone" 
             dataKey="outgoing" 
             stroke="#f43f5e" 
-            strokeWidth={3}
+            strokeWidth={4}
             fillOpacity={1} 
             fill="url(#colorOutgoing)" 
           />
@@ -79,3 +106,4 @@ const CashFlowChart = () => {
 };
 
 export default CashFlowChart;
+

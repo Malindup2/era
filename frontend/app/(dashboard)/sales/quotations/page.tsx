@@ -8,6 +8,7 @@ import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -52,7 +53,7 @@ const QuotationsPage = () => {
       router.push('/sales/invoices');
     } catch (error) {
       console.error('Failed to convert quotation', error);
-      alert('Conversion failed.');
+      toast.error('Conversion failed.');
     }
   };
 

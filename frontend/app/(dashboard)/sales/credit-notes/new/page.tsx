@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Plus, Trash2, ArrowLeft, Save, Link as LinkIcon } from 'lucide-react';
 import api from '@/lib/api';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 
 interface Customer {
   id: number;
@@ -122,7 +123,7 @@ const NewCreditNotePage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!customerId) return alert('Please select a customer');
+    if (!customerId) return toast.error('Please select a customer');
 
     try {
       const payload = {
@@ -140,10 +141,11 @@ const NewCreditNotePage = () => {
       };
 
       await api.post('/credit-notes', payload);
+      toast.success('Credit note issued successfully!');
       router.push('/sales/credit-notes');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to create credit note', error);
-      alert('An error occurred during credit note creation.');
+      toast.error(error.response?.data?.message || 'Failed to issue credit note.');
     }
   };
 
@@ -166,7 +168,7 @@ const NewCreditNotePage = () => {
             Cancel
           </button>
           <button 
-            onClick={handleSubmit}
+            type="submit"
             className="bg-rose-600 hover:bg-rose-700 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-rose-200"
           >
             <Save size={20} />
@@ -183,7 +185,7 @@ const NewCreditNotePage = () => {
               <select 
                 value={invoiceId}
                 onChange={(e) => handleInvoiceChange(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 bg-white text-sm outline-hidden transition-all appearance-none"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 bg-white text-sm outline-hidden transition-all appearance-none text-gray-900"
               >
                 <option value="">No Linked Invoice</option>
                 {availableInvoices.map(inv => <option key={inv.id} value={inv.id}>{inv.number} - {inv.total}</option>)}
@@ -197,7 +199,7 @@ const NewCreditNotePage = () => {
             <select 
               value={customerId}
               onChange={(e) => setCustomerId(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 bg-white text-sm outline-hidden transition-all"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 bg-white text-sm outline-hidden transition-all text-gray-900"
               disabled={!!invoiceId}
             >
               <option value="">Select Customer</option>
@@ -211,7 +213,7 @@ const NewCreditNotePage = () => {
               type="date"
               value={creditNoteDate}
               onChange={(e) => setCreditNoteDate(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 outline-hidden transition-all text-sm"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 outline-hidden transition-all text-sm text-gray-900"
             />
           </div>
         </div>
@@ -236,7 +238,7 @@ const NewCreditNotePage = () => {
                   <select 
                     value={item.itemId || '0'}
                     onChange={(e) => updateLineItem(index, 'itemId', e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 outline-hidden text-sm bg-white"
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 outline-hidden text-sm bg-white text-gray-900"
                   >
                     <option value="0">Select Item</option>
                     {availableItems.map(ai => <option key={ai.id} value={ai.id}>{ai.name}</option>)}
@@ -247,7 +249,7 @@ const NewCreditNotePage = () => {
                   <input 
                     value={item.description}
                     onChange={(e) => updateLineItem(index, 'description', e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 outline-hidden text-sm"
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 outline-hidden text-sm text-gray-900 placeholder:text-gray-400"
                     placeholder="Auto-filled or manual..."
                   />
                 </div>
@@ -257,7 +259,7 @@ const NewCreditNotePage = () => {
                     type="number"
                     value={item.quantity}
                     onChange={(e) => updateLineItem(index, 'quantity', e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 outline-hidden text-sm"
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 outline-hidden text-sm text-gray-900"
                   />
                 </div>
                 <div className="col-span-2 space-y-1">
@@ -266,7 +268,7 @@ const NewCreditNotePage = () => {
                     type="number"
                     value={item.unitPrice}
                     onChange={(e) => updateLineItem(index, 'unitPrice', e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 outline-hidden text-sm"
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 outline-hidden text-sm text-gray-900"
                   />
                 </div>
                 <div className="col-span-1 space-y-1">
@@ -275,7 +277,7 @@ const NewCreditNotePage = () => {
                     type="number"
                     value={item.taxRate}
                     onChange={(e) => updateLineItem(index, 'taxRate', e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 outline-hidden text-sm"
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-indigo-500 outline-hidden text-sm text-gray-900"
                   />
                 </div>
                 <div className="col-span-1 space-y-1">
@@ -305,7 +307,7 @@ const NewCreditNotePage = () => {
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={4}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 outline-hidden transition-all text-sm resize-none"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 outline-hidden transition-all text-sm resize-none text-gray-900 placeholder:text-gray-400"
               placeholder="e.g. Return of damaged goods."
             />
           </div>
