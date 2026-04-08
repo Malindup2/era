@@ -64,6 +64,15 @@ const CreditNotesPage = () => {
     }
   };
 
+  const updateCreditNoteStatus = async (id: number, status: 'draft' | 'open' | 'closed') => {
+    try {
+      await api.patch(`/credit-notes/${id}`, { status });
+      fetchCreditNotes();
+    } catch (error) {
+      console.error('Failed to update credit note status', error);
+    }
+  };
+
   // Calculation Logic
   const metrics = useMemo(() => ({
     open: creditNotes
@@ -163,6 +172,39 @@ const CreditNotesPage = () => {
       header: '',
       accessor: (cnm: CreditNote) => (
         <div className="flex items-center justify-end gap-2">
+          {cnm.status !== 'draft' && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                updateCreditNoteStatus(cnm.id, 'draft');
+              }}
+              className="px-3 py-1.5 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg text-xs font-bold transition-all active:scale-95"
+            >
+              Draft
+            </button>
+          )}
+          {cnm.status !== 'open' && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                updateCreditNoteStatus(cnm.id, 'open');
+              }}
+              className="px-3 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg text-xs font-bold transition-all active:scale-95"
+            >
+              Open
+            </button>
+          )}
+          {cnm.status !== 'closed' && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                updateCreditNoteStatus(cnm.id, 'closed');
+              }}
+              className="px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg text-xs font-bold transition-all active:scale-95"
+            >
+              Close
+            </button>
+          )}
           <Link 
             href={`/sales/credit-notes/${cnm.id}`}
             onClick={(e) => e.stopPropagation()}
@@ -182,7 +224,7 @@ const CreditNotesPage = () => {
           </button>
         </div>
       ),
-      className: 'w-24 text-right'
+      className: 'w-80 text-right'
     }
   ];
 

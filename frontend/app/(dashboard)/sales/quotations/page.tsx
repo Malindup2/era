@@ -55,12 +55,25 @@ const QuotationsPage = () => {
 
   const convertToInvoice = async (id: number) => {
     try {
+      // This button is the frontend entry point for the quotation -> invoice workflow.
       await api.post(`/quotations/${id}/convert`);
       toast.success('Successfully converted to invoice!');
       fetchQuotations();
     } catch (error: any) {
       console.error('Failed to convert to invoice', error);
       toast.error(error.response?.data?.message || 'Conversion failed.');
+    }
+  };
+
+  const updateQuotationStatus = async (id: number, status: 'sent' | 'accepted' | 'rejected') => {
+    try {
+      // These status buttons map directly to the quotation lifecycle in the backend.
+      await api.patch(`/quotations/${id}`, { status });
+      toast.success(`Quotation marked as ${status}`);
+      fetchQuotations();
+    } catch (error: any) {
+      console.error('Failed to update quotation status', error);
+      toast.error(error.response?.data?.message || 'Failed to update quotation status.');
     }
   };
 
@@ -192,6 +205,39 @@ const QuotationsPage = () => {
       header: '',
       accessor: (q: Quotation) => (
         <div className="flex items-center gap-2 justify-end">
+          {q.status === 'draft' && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                updateQuotationStatus(q.id, 'sent');
+              }}
+              className="px-3 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg text-xs font-bold transition-all active:scale-95"
+            >
+              Mark Sent
+            </button>
+          )}
+          {q.status === 'sent' && (
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  updateQuotationStatus(q.id, 'accepted');
+                }}
+                className="px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg text-xs font-bold transition-all active:scale-95"
+              >
+                Accept
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  updateQuotationStatus(q.id, 'rejected');
+                }}
+                className="px-3 py-1.5 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg text-xs font-bold transition-all active:scale-95"
+              >
+                Reject
+              </button>
+            </>
+          )}
           {q.status !== 'converted' && (
             <button 
               onClick={(e) => {
@@ -223,7 +269,7 @@ const QuotationsPage = () => {
           </button>
         </div>
       ),
-      className: 'w-44 text-right'
+      className: 'w-72 text-right'
     }
   ];
 

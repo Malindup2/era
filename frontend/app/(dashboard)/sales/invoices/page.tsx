@@ -60,6 +60,7 @@ const InvoicesPage = () => {
 
   const markAsPaid = async (id: number) => {
     try {
+      // Backend status transition used by the invoice action buttons.
       await api.patch(`/invoices/${id}/mark-paid`);
       fetchInvoices();
     } catch (error) {
@@ -69,6 +70,7 @@ const InvoicesPage = () => {
 
   const markAsSent = async (id: number) => {
     try {
+      // This marks the invoice as sent/viewed from the preview modal.
       await api.patch(`/invoices/${id}/send`);
       fetchInvoices();
       setSelectedInvoice(null);
@@ -111,6 +113,7 @@ const InvoicesPage = () => {
   const tabs = useMemo(() => [
     { id: 'all', label: 'All', count: invoices.length },
     { id: 'draft', label: 'Draft', count: invoices.filter(i => i.status === 'draft').length },
+    { id: 'viewed', label: 'Viewed', count: invoices.filter(i => i.status === 'viewed').length },
     { id: 'awaiting_payment', label: 'Awaiting Payment', count: invoices.filter(i => i.status === 'awaiting_payment').length },
     { id: 'paid', label: 'Paid', count: invoices.filter(i => i.status === 'paid').length },
     { id: 'rejected', label: 'Reject', count: invoices.filter(i => i.status === 'rejected').length },
@@ -208,6 +211,17 @@ const InvoicesPage = () => {
       header: '',
       accessor: (inv: Invoice) => (
         <div className="flex items-center justify-end gap-2">
+          {/* Opens the preview modal so the invoice details are visible without navigation. */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedInvoice(inv);
+            }}
+            className="px-3 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-lg text-xs font-bold transition-all flex items-center gap-1 active:scale-95"
+          >
+            <FileText size={14} />
+            View Details
+          </button>
           <Link 
             href={`/sales/invoices/${inv.id}`}
             onClick={(e) => e.stopPropagation()}
@@ -227,7 +241,7 @@ const InvoicesPage = () => {
           </button>
         </div>
       ),
-      className: 'w-24 text-right'
+      className: 'w-56 text-right'
     }
   ];
 

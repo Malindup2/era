@@ -38,6 +38,7 @@ const CustomerDetailsPage = ({ params }: { params: Promise<{ id: string }> }) =>
 
   const fetchHistory = async () => {
     try {
+      // The customer page gets its full business history from this backend endpoint.
       const res = await api.get(`/customers/${id}/history`);
       setHistory(res.data);
     } catch (error) {
@@ -57,6 +58,7 @@ const CustomerDetailsPage = ({ params }: { params: Promise<{ id: string }> }) =>
   const totalInvoiced = history.invoices.reduce((sum, inv) => sum + Number(inv.total), 0);
   const totalPaid = history.invoices.filter(inv => inv.status === 'paid').reduce((sum, inv) => sum + Number(inv.total), 0);
   const totalCredited = history.creditNotes.reduce((sum, cn) => sum + Number(cn.total), 0);
+  const totalQuoted = history.quotations.reduce((sum, q) => sum + Number(q.total), 0);
   const totalOutstanding = totalInvoiced - totalPaid - totalCredited;
 
   const formatCurrency = (value: number) => {
@@ -66,7 +68,7 @@ const CustomerDetailsPage = ({ params }: { params: Promise<{ id: string }> }) =>
     }).format(value);
   };
 
-  // Combine all items into a single timeline
+  // Merge invoices, quotations, and credit notes into one customer activity timeline.
   const timeline = [
     ...history.invoices.map(i => ({ ...i, type: 'invoice' })),
     ...history.quotations.map(q => ({ ...q, type: 'quotation' })),
@@ -144,6 +146,24 @@ const CustomerDetailsPage = ({ params }: { params: Promise<{ id: string }> }) =>
         </div>
       </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+          <p className="text-xs font-black text-gray-400 uppercase tracking-wider mb-2">Invoices</p>
+          <p className="text-3xl font-black text-indigo-600">{history.invoices.length}</p>
+          <p className="text-sm text-gray-500 mt-2">{formatCurrency(totalInvoiced)} total billed</p>
+        </div>
+        <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+          <p className="text-xs font-black text-gray-400 uppercase tracking-wider mb-2">Quotations</p>
+          <p className="text-3xl font-black text-blue-600">{history.quotations.length}</p>
+          <p className="text-sm text-gray-500 mt-2">{formatCurrency(totalQuoted)} total quoted</p>
+        </div>
+        <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+          <p className="text-xs font-black text-gray-400 uppercase tracking-wider mb-2">Credit Notes</p>
+          <p className="text-3xl font-black text-rose-600">{history.creditNotes.length}</p>
+          <p className="text-sm text-gray-500 mt-2">{formatCurrency(totalCredited)} total credited</p>
+        </div>
+      </div>
+
       {/* Activity History */}
       <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="px-8 py-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
@@ -181,7 +201,12 @@ const CustomerDetailsPage = ({ params }: { params: Promise<{ id: string }> }) =>
                     </div>
                   </td>
                   <td className="px-8 py-6 font-bold text-gray-900">
-                    {entry.number}
+                    <div className="flex flex-col gap-1">
+                      <span>{entry.number}</span>
+                      <span className="text-[10px] uppercase tracking-widest text-gray-400">
+                        {entry.type.replace('_', ' ')}
+                      </span>
+                    </div>
                   </td>
                   <td className="px-8 py-6 text-sm text-gray-500 font-medium">
                     {new Date(entry.createdAt).toLocaleDateString()}
@@ -212,6 +237,71 @@ const CustomerDetailsPage = ({ params }: { params: Promise<{ id: string }> }) =>
               )}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-50 bg-gray-50/50 font-bold text-gray-900 flex items-center gap-2">
+            <Receipt size={18} className="text-indigo-600" />
+            Recent Invoices
+          </div>
+          <div className="divide-y divide-gray-50">
+            {history.invoices.slice(0, 5).map((inv) => (
+              <div key={inv.id} className="px-6 py-4 flex items-center justify-between">
+                <div>
+                  <p className="font-bold text-gray-900">{inv.number}</p>
+                  <p className="text-xs text-gray-500 uppercase tracking-widest">{inv.status}</p>
+                </div>
+                <span className="font-bold text-gray-900">{formatCurrency(Number(inv.total))}</span>
+              </div>
+            ))}
+            {history.invoices.length === 0 && (
+              <div className="px-6 py-8 text-center text-gray-400 text-sm">No invoices yet.</div>
+            )}
+          </div>
+        </div>
+
+        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-50 bg-gray-50/50 font-bold text-gray-900 flex items-center gap-2">
+            <FileText size={18} className="text-blue-600" />
+            Recent Quotations
+          </div>
+          <div className="divide-y divide-gray-50">
+            {history.quotations.slice(0, 5).map((quo) => (
+              <div key={quo.id} className="px-6 py-4 flex items-center justify-between">
+                <div>
+                  <p className="font-bold text-gray-900">{quo.number}</p>
+                  <p className="text-xs text-gray-500 uppercase tracking-widest">{quo.status}</p>
+                </div>
+                <span className="font-bold text-gray-900">{formatCurrency(Number(quo.total))}</span>
+              </div>
+            ))}
+            {history.quotations.length === 0 && (
+              <div className="px-6 py-8 text-center text-gray-400 text-sm">No quotations yet.</div>
+            )}
+          </div>
+        </div>
+
+        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-50 bg-gray-50/50 font-bold text-gray-900 flex items-center gap-2">
+            <RefreshCcw size={18} className="text-rose-600" />
+            Recent Credit Notes
+          </div>
+          <div className="divide-y divide-gray-50">
+            {history.creditNotes.slice(0, 5).map((note) => (
+              <div key={note.id} className="px-6 py-4 flex items-center justify-between">
+                <div>
+                  <p className="font-bold text-gray-900">{note.number}</p>
+                  <p className="text-xs text-gray-500 uppercase tracking-widest">{note.status}</p>
+                </div>
+                <span className="font-bold text-rose-600">-{formatCurrency(Number(note.total))}</span>
+              </div>
+            ))}
+            {history.creditNotes.length === 0 && (
+              <div className="px-6 py-8 text-center text-gray-400 text-sm">No credit notes yet.</div>
+            )}
+          </div>
         </div>
       </div>
 

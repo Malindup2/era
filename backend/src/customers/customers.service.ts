@@ -25,6 +25,7 @@ export class CustomersService {
   }
 
   async findAll(userId: number) {
+    // Customer list view also computes overdue balances from related invoices.
     const customers = await this.repo.find({ where: { userId } });
     const overdueInvoices = await this.invoiceRepo.find({
       where: {
@@ -64,6 +65,7 @@ export class CustomersService {
   }
 
   async getHistory(id: number, userId: number) {
+    // Customer detail page pulls invoices, quotations, and credit notes together here.
     const customer = await this.findOne(id, userId);
     if (!customer) return null;
 
