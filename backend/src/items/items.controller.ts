@@ -8,6 +8,16 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 export class ItemsController {
   constructor(private readonly itemsService: ItemsService) {}
 
+  @Get('export')
+  async export(@CurrentUser() user: any) {
+    return this.itemsService.exportToCsv(user.id);
+  }
+
+  @Post('import')
+  async import(@Body('csvContent') csvContent: string, @CurrentUser() user: any) {
+    return this.itemsService.importFromCsv(csvContent, user.id);
+  }
+
   @Post()
   create(@Body() body: any, @CurrentUser() user: any) {
     return this.itemsService.create(body, user.id);
@@ -20,26 +30,22 @@ export class ItemsController {
 
   @Get(':id')
   findOne(@Param('id') id: string, @CurrentUser() user: any) {
-    return this.itemsService.findOne(+id, user.id);
+    const numericId = parseInt(id);
+    if (isNaN(numericId)) return null;
+    return this.itemsService.findOne(numericId, user.id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
-    return this.itemsService.update(+id, body, user.id);
+    const numericId = parseInt(id);
+    if (isNaN(numericId)) return null;
+    return this.itemsService.update(numericId, body, user.id);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string, @CurrentUser() user: any) {
-    return this.itemsService.remove(+id, user.id);
-  }
-
-  @Get('export')
-  async export(@CurrentUser() user: any) {
-    return this.itemsService.exportToCsv(user.id);
-  }
-
-  @Post('import')
-  async import(@Body('csvContent') csvContent: string, @CurrentUser() user: any) {
-    return this.itemsService.importFromCsv(csvContent, user.id);
+    const numericId = parseInt(id);
+    if (isNaN(numericId)) return null;
+    return this.itemsService.remove(numericId, user.id);
   }
 }
