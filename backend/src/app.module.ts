@@ -7,8 +7,10 @@ import { CustomersModule } from './customers/customers.module';
 import { ItemsModule } from './items/items.module';
 import { InvoicesModule } from './invoices/invoices.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { QuotationsModule } from './quotations/quotations.module';
 
 @Module({
+
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
@@ -33,7 +35,9 @@ import { DashboardModule } from './dashboard/dashboard.module';
     ItemsModule,
     InvoicesModule,
     DashboardModule,
+    QuotationsModule,
   ],
+
 
 
 
