@@ -10,11 +10,26 @@ export class UsersService {
     private repo: Repository<User>,
   ) {}
 
-  create(data) {
-    return this.repo.save(data);
+  create(data: Partial<User>) {
+    return this.repo.save(this.repo.create(data));
   }
 
   findAll() {
     return this.repo.find();
   }
-}
+
+  findByEmail(email: string) {
+    return this.repo.findOne({ where: { email } });
+  }
+
+  findByEmailWithPassword(email: string) {
+    return this.repo.findOne({
+      where: { email },
+      select: ['id', 'email', 'password', 'name', 'company'],
+    });
+  }
+
+  findById(id: number) {
+    return this.repo.findOne({ where: { id } });
+  }
+}
