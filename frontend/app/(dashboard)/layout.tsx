@@ -1,13 +1,38 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
-import { Bell, Search, User } from 'lucide-react';
+import { Bell, Search, User, Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
+  const [isAuth, setIsAuth] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      router.push('/login');
+    } else {
+      setIsAuth(true);
+    }
+  }, [router]);
+
+  if (!isAuth) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 text-indigo-600 gap-4">
+        <Loader2 className="animate-spin" size={40} />
+        <p className="font-bold tracking-tight">Securing your session...</p>
+      </div>
+    );
+  }
+
   return (
+
     <div className="flex bg-gray-50 min-h-screen">
       <Sidebar />
       <main className="flex-1 flex flex-col">

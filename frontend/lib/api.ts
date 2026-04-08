@@ -16,4 +16,22 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Add interceptor to handle response errors
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Clear session and redirect to login
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
+        window.location.href = '/login?error=session_expired';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default api;
+

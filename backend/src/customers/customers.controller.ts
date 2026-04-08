@@ -32,4 +32,10 @@ export class CustomersController {
   remove(@Param('id') id: string, @CurrentUser() user: any) {
     return this.customersService.remove(+id, user.id);
   }
+
+  @Get(':id/history')
+  getHistory(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.customersService.getHistory(+id, user.id);
+  }
 }
+

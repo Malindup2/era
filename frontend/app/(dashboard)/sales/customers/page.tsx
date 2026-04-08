@@ -43,12 +43,17 @@ const CustomersPage = () => {
       header: 'Customer', 
       accessor: (c: Customer) => (
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-bold">
-            {c.name.charAt(0)}
+          <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-400">
+            <User size={20} />
           </div>
           <div>
-            <p className="font-bold text-gray-900">{c.name}</p>
-            <p className="text-xs text-gray-500">Member since {new Date(c.createdAt).toLocaleDateString()}</p>
+            <Link 
+              href={`/sales/customers/${c.id}`}
+              className="font-bold text-gray-900 mx-0 block hover:text-indigo-600 transition-colors"
+            >
+              {c.name}
+            </Link>
+            <p className="text-xs text-gray-500">{c.email}</p>
           </div>
         </div>
       )
