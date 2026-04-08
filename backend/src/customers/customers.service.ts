@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { Customer } from './entities/customer.entity';
 import { Invoice } from '../invoices/entities/invoice.entity';
 import { Quotation } from '../quotations/entities/quotation.entity';
@@ -24,8 +24,30 @@ export class CustomersService {
     return this.repo.save(customer);
   }
 
-  findAll(userId: number) {
-    return this.repo.find({ where: { userId } });
+  async findAll(userId: number) {
+    const customers = await this.repo.find({ where: { userId } });
+    const overdueInvoices = await this.invoiceRepo.find({
+      where: {
+        userId,
+        status: In(['viewed', 'awaiting_payment', 'draft']), // Not paid/rejected
+      },
+    });
+
+    const now = new Date();
+
+    return customers.map(customer => {
+      const customerOverdueInvoices = overdueInvoices.filter(inv => 
+        inv.customerId === customer.id && 
+        new Date(inv.dueDate) < now
+      );
+      
+      const overdueBalance = customerOverdueInvoices.reduce((sum, inv) => sum + Number(inv.total), 0);
+      
+      return {
+        ...customer,
+        overdueBalance,
+      };
+    });
   }
 
   findOne(id: number, userId: number) {

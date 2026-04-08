@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 
 export default function AuthLayout({
   children,
@@ -8,12 +9,16 @@ export default function AuthLayout({
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-indigo-500 via-purple-500 to-pink-500 p-4">
       <div className="w-full max-w-md bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-linear-to-r from-indigo-600 to-purple-600">
-            Erabiz POS
+        <div className="text-center mb-8 flex flex-col items-center">
+          <div className="mb-4 transition-transform hover:scale-105">
+            <Image src="/logo.svg" alt="ERA Biz" width={120} height={88} className="h-auto w-auto" priority />
+          </div>
+          <h1 className="text-4xl font-black text-transparent bg-clip-text bg-linear-to-r from-indigo-600 to-purple-600 tracking-tight">
+            ERA Biz
           </h1>
-          <p className="text-gray-500 mt-2">Empowering your business growth</p>
+          <p className="text-gray-500 mt-2 font-medium">Empowering your business growth</p>
         </div>
+
         {children}
       </div>
     </div>

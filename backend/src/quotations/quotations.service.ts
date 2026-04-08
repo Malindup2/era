@@ -97,6 +97,14 @@ export class QuotationsService {
     }
   }
 
+  async update(id: number, data: any, userId: number) {
+    const existing = await this.findOne(id, userId);
+    if (!existing) return null;
+    
+    // We use save() to handle nested children updates
+    return this.repo.save({ ...existing, ...data });
+  }
+
   remove(id: number, userId: number) {
     return this.repo.delete({ id, userId });
   }

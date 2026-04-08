@@ -32,4 +32,14 @@ export class ItemsController {
   remove(@Param('id') id: string, @CurrentUser() user: any) {
     return this.itemsService.remove(+id, user.id);
   }
+
+  @Get('export')
+  async export(@CurrentUser() user: any) {
+    return this.itemsService.exportToCsv(user.id);
+  }
+
+  @Post('import')
+  async import(@Body('csvContent') csvContent: string, @CurrentUser() user: any) {
+    return this.itemsService.importFromCsv(csvContent, user.id);
+  }
 }

@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { Table } from '@/components/ui/Table';
 import api from '@/lib/api';
-import { Plus, Search, Calendar, FileText, MoreHorizontal, Link as LinkIcon } from 'lucide-react';
+import { Plus, Search, Calendar, FileText, MoreHorizontal, Printer, Edit, Trash2, Link as LinkIcon } from 'lucide-react';
+import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import Link from 'next/link';
@@ -29,6 +30,8 @@ interface CreditNote {
 const CreditNotesPage = () => {
   const [creditNotes, setCreditNotes] = useState<CreditNote[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [creditNoteToDelete, setCreditNoteToDelete] = useState<CreditNote | null>(null);
 
   const fetchCreditNotes = async () => {
     setLoading(true);
@@ -42,6 +45,17 @@ const CreditNotesPage = () => {
     }
   };
 
+  const deleteCreditNote = async () => {
+    if (!creditNoteToDelete) return;
+    try {
+      await api.delete(`/credit-notes/${creditNoteToDelete.id}`);
+      fetchCreditNotes();
+      setIsDeleteModalOpen(false);
+    } catch (error) {
+      console.error('Failed to delete credit note', error);
+    }
+  };
+
   useEffect(() => {
     fetchCreditNotes();
   }, []);
@@ -49,7 +63,7 @@ const CreditNotesPage = () => {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'LKR',
     }).format(value);
   };
 
@@ -110,10 +124,24 @@ const CreditNotesPage = () => {
     },
     {
       header: 'Action',
-      accessor: () => (
-        <button className="p-2 hover:bg-gray-100 rounded-lg transition-all text-gray-400 hover:text-gray-600">
-          <MoreHorizontal size={20} />
-        </button>
+      accessor: (cn: CreditNote) => (
+        <div className="flex items-center justify-center gap-1">
+          <Link 
+            href={`/sales/credit-notes/${cn.id}`}
+            className="p-2 hover:bg-indigo-50 rounded-lg transition-all text-gray-400 hover:text-indigo-600"
+          >
+            <Edit size={18} />
+          </Link>
+          <button 
+            onClick={() => {
+              setCreditNoteToDelete(cn);
+              setIsDeleteModalOpen(true);
+            }}
+            className="p-2 hover:bg-red-50 rounded-lg transition-all text-gray-400 hover:text-red-600"
+          >
+            <Trash2 size={18} />
+          </button>
+        </div>
       ),
       className: 'w-20 text-center'
     }
@@ -145,6 +173,16 @@ const CreditNotesPage = () => {
           />
         </div>
       </div>
+
+      <ConfirmationModal 
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={deleteCreditNote}
+        title="Delete Credit Note"
+        message={`Are you sure you want to delete credit note ${creditNoteToDelete?.number}? This action cannot be undone.`}
+        confirmLabel="Delete Credit Note"
+        isDestructive={true}
+      />
 
       <Table columns={columns as any} data={creditNotes} isLoading={loading} />
     </div>

@@ -5,29 +5,40 @@ import { useForm } from 'react-hook-form';
 import api from '@/lib/api';
 import { toast } from 'react-hot-toast';
 
-interface CustomerFormData {
+interface Customer {
+  id: number;
   name: string;
   email: string;
   phone: string;
   address: string;
 }
 
+interface CustomerFormData extends Omit<Customer, 'id'> {}
+
 interface CustomerFormProps {
   onSuccess: () => void;
   onCancel: () => void;
+  initialData?: Customer | null;
 }
 
-export const CustomerForm = ({ onSuccess, onCancel }: CustomerFormProps) => {
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<CustomerFormData>();
+export const CustomerForm = ({ onSuccess, onCancel, initialData }: CustomerFormProps) => {
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<CustomerFormData>({
+    defaultValues: initialData || {}
+  });
 
   const onSubmit = async (data: CustomerFormData) => {
     try {
-      await api.post('/customers', data);
-      toast.success('Customer created successfully!');
+      if (initialData?.id) {
+        await api.patch(`/customers/${initialData.id}`, data);
+        toast.success('Customer updated successfully!');
+      } else {
+        await api.post('/customers', data);
+        toast.success('Customer created successfully!');
+      }
       onSuccess();
     } catch (error: any) {
-      console.error('Failed to create customer', error);
-      toast.error(error.response?.data?.message || 'Failed to create customer');
+      console.error('Failed to save customer', error);
+      toast.error(error.response?.data?.message || 'Failed to save customer');
     }
   };
 
@@ -86,7 +97,7 @@ export const CustomerForm = ({ onSuccess, onCancel }: CustomerFormProps) => {
           disabled={isSubmitting}
           className="flex-1 px-4 py-3 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 disabled:opacity-50"
         >
-          {isSubmitting ? 'Saving...' : 'Create Customer'}
+          {isSubmitting ? 'Saving...' : initialData ? 'Update Customer' : 'Create Customer'}
         </button>
       </div>
     </form>

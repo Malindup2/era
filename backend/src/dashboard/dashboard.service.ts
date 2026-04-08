@@ -13,17 +13,19 @@ export class DashboardService {
   async getSummary(userId: number) {
     const invoices = await this.invoiceRepo.find({ where: { userId } });
 
+    // Receivables are invoices that are NOT paid and NOT rejected
     const totalReceivables = invoices
       .filter(inv => ![InvoiceStatus.PAID, InvoiceStatus.REJECTED].includes(inv.status))
       .reduce((sum, inv) => sum + Number(inv.total), 0);
 
+    // Bank Balance is the sum of all PAID invoices
     const bankBalance = invoices
       .filter(inv => inv.status === InvoiceStatus.PAID)
       .reduce((sum, inv) => sum + Number(inv.total), 0);
 
     return {
       totalReceivables,
-      totalPayables: 0,
+      totalPayables: 0, // Out of scope as per README.md
       bankBalance,
       netProfit: bankBalance,
     };
@@ -52,15 +54,29 @@ export class DashboardService {
   }
 
   async getCashFlow(userId: number) {
-    // This would typically group by month. For now, we return a simple mock-up structure
-    // consistent with what a chart library might expect.
-    return [
-      { month: 'Jan', incoming: 4000, outgoing: 2400 },
-      { month: 'Feb', incoming: 3000, outgoing: 1398 },
-      { month: 'Mar', incoming: 2000, outgoing: 3800 },
-      { month: 'Apr', incoming: 2780, outgoing: 3908 },
-      { month: 'May', incoming: 1890, outgoing: 4800 },
-      { month: 'Jun', incoming: 2390, outgoing: 3800 },
-    ];
+    const invoices = await this.invoiceRepo.find({ 
+      where: { userId, status: InvoiceStatus.PAID } 
+    });
+
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const currentYear = new Date().getFullYear();
+    
+    // Initialize current year monthly data
+    const cashFlowMap: Record<string, { month: string; incoming: number; outgoing: number }> = {};
+    months.forEach(m => {
+      cashFlowMap[m] = { month: m, incoming: 0, outgoing: 0 };
+    });
+
+    invoices.forEach(inv => {
+      const date = new Date(inv.invoiceDate);
+      if (date.getFullYear() === currentYear) {
+        const monthName = months[date.getMonth()];
+        cashFlowMap[monthName].incoming += Number(inv.total);
+      }
+    });
+
+    // Return the last 6 months or current year up to now? 
+    // Let's return the full year data for the chart to be comprehensive.
+    return Object.values(cashFlowMap);
   }
 }

@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { Table } from '@/components/ui/Table';
 import api from '@/lib/api';
-import { Plus, Search, Calendar, FileText, MoreHorizontal, RefreshCw } from 'lucide-react';
+import { Plus, Search, Calendar, FileText, MoreHorizontal, Printer, RefreshCw, Edit, Trash2 } from 'lucide-react';
+import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import Link from 'next/link';
@@ -29,6 +30,8 @@ interface Quotation {
 const QuotationsPage = () => {
   const [quotations, setQuotations] = useState<Quotation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [quotationToDelete, setQuotationToDelete] = useState<Quotation | null>(null);
   const router = useRouter();
 
   const fetchQuotations = async () => {
@@ -50,17 +53,28 @@ const QuotationsPage = () => {
   const convertToInvoice = async (id: number) => {
     try {
       await api.post(`/quotations/${id}/convert`);
-      router.push('/sales/invoices');
+      fetchQuotations();
     } catch (error) {
-      console.error('Failed to convert quotation', error);
+      console.error('Failed to convert to invoice', error);
       toast.error('Conversion failed.');
+    }
+  };
+
+  const deleteQuotation = async () => {
+    if (!quotationToDelete) return;
+    try {
+      await api.delete(`/quotations/${quotationToDelete.id}`);
+      fetchQuotations();
+      setIsDeleteModalOpen(false);
+    } catch (error) {
+      console.error('Failed to delete quotation', error);
     }
   };
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'LKR',
     }).format(value);
   };
 
@@ -142,8 +156,20 @@ const QuotationsPage = () => {
               Convert to Inv
             </button>
           )}
-          <button className="p-2 hover:bg-gray-100 rounded-lg transition-all text-gray-400 hover:text-gray-600">
-            <MoreHorizontal size={20} />
+          <Link 
+            href={`/sales/quotations/${q.id}`}
+            className="p-2 hover:bg-indigo-50 rounded-lg transition-all text-gray-400 hover:text-indigo-600"
+          >
+            <Edit size={18} />
+          </Link>
+          <button 
+            onClick={() => {
+              setQuotationToDelete(q);
+              setIsDeleteModalOpen(true);
+            }}
+            className="p-2 hover:bg-red-50 rounded-lg transition-all text-gray-400 hover:text-red-600"
+          >
+            <Trash2 size={18} />
           </button>
         </div>
       ),
@@ -179,6 +205,16 @@ const QuotationsPage = () => {
       </div>
 
       <Table columns={columns as any} data={quotations} isLoading={loading} />
+
+      <ConfirmationModal 
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={deleteQuotation}
+        title="Delete Quotation"
+        message={`Are you sure you want to delete quotation ${quotationToDelete?.number}? This action cannot be undone.`}
+        confirmLabel="Delete Quotation"
+        isDestructive={true}
+      />
     </div>
   );
 };

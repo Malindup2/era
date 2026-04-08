@@ -5,11 +5,13 @@ import api from '@/lib/api';
 import { 
   ArrowLeft, Mail, Phone, MapPin, 
   FileText, IndianRupee, Clock, CheckCircle2, 
-  AlertCircle, Receipt, RefreshCcw, TrendingUp 
+  AlertCircle, Receipt, RefreshCcw, TrendingUp, Edit
 } from 'lucide-react';
 import Link from 'next/link';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { Modal } from '@/components/ui/Modal';
+import { CustomerForm } from '@/components/customers/CustomerForm';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -32,18 +34,20 @@ const CustomerDetailsPage = ({ params }: { params: Promise<{ id: string }> }) =>
   const { id } = use(params);
   const [history, setHistory] = useState<CustomerHistory | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const fetchHistory = async () => {
+    try {
+      const res = await api.get(`/customers/${id}/history`);
+      setHistory(res.data);
+    } catch (error) {
+      console.error('Failed to fetch customer history', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        const res = await api.get(`/customers/${id}/history`);
-        setHistory(res.data);
-      } catch (error) {
-        console.error('Failed to fetch customer history', error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchHistory();
   }, [id]);
 
@@ -58,7 +62,7 @@ const CustomerDetailsPage = ({ params }: { params: Promise<{ id: string }> }) =>
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'LKR',
     }).format(value);
   };
 
@@ -98,7 +102,11 @@ const CustomerDetailsPage = ({ params }: { params: Promise<{ id: string }> }) =>
         </div>
 
         <div className="flex gap-4">
-          <button className="bg-white hover:bg-gray-50 text-gray-900 px-6 py-3 rounded-xl font-bold border border-gray-100 transition-all shadow-sm">
+          <button 
+            onClick={() => setIsEditModalOpen(true)}
+            className="flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-900 px-6 py-3 rounded-xl font-bold border border-gray-100 transition-all shadow-sm"
+          >
+            <Edit size={20} />
             Edit Profile
           </button>
           <Link 
@@ -206,6 +214,21 @@ const CustomerDetailsPage = ({ params }: { params: Promise<{ id: string }> }) =>
           </table>
         </div>
       </div>
+
+      <Modal 
+        isOpen={isEditModalOpen} 
+        onClose={() => setIsEditModalOpen(false)} 
+        title="Edit Customer Profile"
+      >
+        <CustomerForm 
+          initialData={history.customer}
+          onSuccess={() => {
+            setIsEditModalOpen(false);
+            fetchHistory();
+          }} 
+          onCancel={() => setIsEditModalOpen(false)} 
+        />
+      </Modal>
     </div>
   );
 };

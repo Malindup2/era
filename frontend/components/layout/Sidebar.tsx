@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
@@ -19,13 +20,23 @@ import {
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
+import { useRouter } from 'next/navigation';
+import { ConfirmationModal } from '../ui/ConfirmationModal';
+
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
 const Sidebar = () => {
   const pathname = usePathname();
+  const router = useRouter();
   const [salesOpen, setSalesOpen] = useState(true);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    router.push('/login');
+  };
 
   const navItems = [
     { label: 'Dashboard', icon: <LayoutDashboard size={20} />, href: '/dashboard' },
@@ -40,12 +51,17 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="w-64 bg-white border-r border-gray-100 flex flex-col h-screen sticky top-0">
+    <aside className="relative z-30 w-64 bg-white border-r border-gray-100 flex flex-col h-screen sticky top-0 overflow-visible">
       <div className="p-6">
-        <div className="flex items-center gap-2 text-indigo-600 mb-8">
-          <Building2 size={32} strokeWidth={2.5} />
-          <span className="text-xl font-black tracking-tight text-gray-900">Erabiz POS</span>
-        </div>
+        <Link href="/dashboard" className="flex items-center gap-3 mb-10 group no-underline transition-all">
+          <div className="w-12 h-12 flex items-center justify-center transition-transform">
+            <Image src="/logo.svg" alt="ERA Biz" width={40} height={40} priority />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-xl font-black tracking-tight text-gray-900 group-hover:text-indigo-600 transition-colors">ERA Biz</span>
+            <span className="text-[10px] uppercase font-bold text-indigo-500 tracking-widest leading-none">Enterprise</span>
+          </div>
+        </Link>
 
         <nav className="space-y-1">
           {navItems.map((item) => (
@@ -83,7 +99,7 @@ const Sidebar = () => {
             </button>
 
             {salesOpen && (
-              <div className="mt-1 ml-4 space-y-1 pl-4 border-l border-gray-100">
+              <div className="relative z-40 mt-1 ml-4 space-y-1 pl-4 border-l border-gray-100">
                 {salesItems.map((item) => (
                   <Link
                     key={item.href}
@@ -105,12 +121,25 @@ const Sidebar = () => {
         </nav>
       </div>
 
-      <div className="mt-auto p-4 border-t border-gray-50">
-        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 transition-all text-sm font-medium">
-          <LogOut size={20} />
+      <div className="mt-auto p-4 border-t border-gray-100">
+        <button 
+          onClick={() => setIsLogoutModalOpen(true)}
+          className="w-full flex items-center justify-center gap-3 px-4 py-3.5 rounded-2xl text-white bg-red-500 hover:bg-red-600 shadow-lg shadow-red-100 transition-all font-bold group"
+        >
+          <LogOut size={20} className="group-hover:-translate-x-1 transition-transform" />
           <span>Logout</span>
         </button>
       </div>
+
+      <ConfirmationModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={handleLogout}
+        title="Confirm Logout"
+        message="Are you sure you want to log out? You will need to sign in again to access the dashboard."
+        confirmLabel="Logout Now"
+        isDestructive={true}
+      />
     </aside>
   );
 };

@@ -5,7 +5,8 @@ import { useForm } from 'react-hook-form';
 import api from '@/lib/api';
 import { toast } from 'react-hot-toast';
 
-interface ItemFormData {
+interface Item {
+  id: number;
   name: string;
   code: string;
   type: 'product' | 'service';
@@ -14,14 +15,17 @@ interface ItemFormData {
   description: string;
 }
 
+interface ItemFormData extends Omit<Item, 'id'> {}
+
 interface ItemFormProps {
   onSuccess: () => void;
   onCancel: () => void;
+  initialData?: Item | null;
 }
 
-export const ItemForm = ({ onSuccess, onCancel }: ItemFormProps) => {
+export const ItemForm = ({ onSuccess, onCancel, initialData }: ItemFormProps) => {
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<ItemFormData>({
-    defaultValues: {
+    defaultValues: initialData || {
       type: 'product',
       saleTax: 'No Tax'
     }
@@ -29,12 +33,17 @@ export const ItemForm = ({ onSuccess, onCancel }: ItemFormProps) => {
 
   const onSubmit = async (data: ItemFormData) => {
     try {
-      await api.post('/items', data);
-      toast.success('Item created successfully!');
+      if (initialData?.id) {
+        await api.patch(`/items/${initialData.id}`, data);
+        toast.success('Item updated successfully!');
+      } else {
+        await api.post('/items', data);
+        toast.success('Item created successfully!');
+      }
       onSuccess();
     } catch (error: any) {
-      console.error('Failed to create item', error);
-      toast.error(error.response?.data?.message || 'Failed to create item');
+      console.error('Failed to save item', error);
+      toast.error(error.response?.data?.message || 'Failed to save item');
     }
   };
 
@@ -120,7 +129,7 @@ export const ItemForm = ({ onSuccess, onCancel }: ItemFormProps) => {
           disabled={isSubmitting}
           className="flex-1 px-4 py-3 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 disabled:opacity-50"
         >
-          {isSubmitting ? 'Saving...' : 'Create Item'}
+          {isSubmitting ? 'Saving...' : initialData ? 'Update Item' : 'Create Item'}
         </button>
       </div>
     </form>

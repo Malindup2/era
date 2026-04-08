@@ -37,4 +37,9 @@ export class InvoicesController {
   markAsPaid(@Param('id') id: string, @CurrentUser() user: any) {
     return this.invoicesService.markAsPaid(+id, user.id);
   }
+
+  @Patch(':id/send')
+  markAsSent(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.invoicesService.markAsSent(+id, user.id);
+  }
 }

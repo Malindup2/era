@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Param, Delete, UseGuards } from '@nestjs/common';
 import { QuotationsService } from './quotations.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -21,6 +21,11 @@ export class QuotationsController {
   @Get(':id')
   findOne(@Param('id') id: string, @CurrentUser() user: any) {
     return this.quotationsService.findOne(+id, user.id);
+  }
+
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() body: any, @CurrentUser() user: any) {
+    return this.quotationsService.update(+id, body, user.id);
   }
 
   @Post(':id/convert')

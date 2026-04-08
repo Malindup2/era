@@ -65,4 +65,9 @@ export class InvoicesService {
     await this.repo.update({ id, userId }, { status: InvoiceStatus.PAID });
     return this.findOne(id, userId);
   }
+
+  async markAsSent(id: number, userId: number) {
+    await this.repo.update({ id, userId }, { status: InvoiceStatus.VIEWED });
+    return this.findOne(id, userId);
+  }
 }

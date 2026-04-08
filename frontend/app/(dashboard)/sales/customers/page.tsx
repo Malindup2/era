@@ -5,7 +5,8 @@ import { Table } from '@/components/ui/Table';
 import { Modal } from '@/components/ui/Modal';
 import { CustomerForm } from '@/components/customers/CustomerForm';
 import api from '@/lib/api';
-import { Plus, Search, Mail, Phone, MapPin, MoreHorizontal, User } from 'lucide-react';
+import { Plus, Search, Mail, Phone, MapPin, MoreHorizontal, User, Trash2, Edit } from 'lucide-react';
+import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
 import Link from 'next/link';
 
 
@@ -16,12 +17,16 @@ interface Customer {
   phone: string;
   address: string;
   createdAt: string;
+  overdueBalance?: number;
 }
 
 const CustomersPage = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
+  const [customerToEdit, setCustomerToEdit] = useState<Customer | null>(null);
 
   const fetchCustomers = async () => {
     setLoading(true);
@@ -38,6 +43,16 @@ const CustomersPage = () => {
   useEffect(() => {
     fetchCustomers();
   }, []);
+
+  const handleDelete = async () => {
+    if (!customerToDelete) return;
+    try {
+      await api.delete(`/customers/${customerToDelete.id}`);
+      fetchCustomers();
+    } catch (error) {
+      console.error('Failed to delete customer', error);
+    }
+  };
 
 
   const columns = [
@@ -86,12 +101,29 @@ const CustomersPage = () => {
     },
     {
       header: 'Action',
-      accessor: () => (
-        <button className="p-2 hover:bg-gray-100 rounded-lg transition-all text-gray-400 hover:text-gray-600">
-          <MoreHorizontal size={20} />
-        </button>
+      accessor: (c: Customer) => (
+        <div className="flex items-center gap-2 justify-center">
+          <button 
+            onClick={() => {
+              setCustomerToEdit(c);
+              setIsModalOpen(true);
+            }}
+            className="p-2 hover:bg-indigo-50 rounded-lg transition-all text-gray-400 hover:text-indigo-600"
+          >
+            <Edit size={18} />
+          </button>
+          <button 
+            onClick={() => {
+              setCustomerToDelete(c);
+              setIsDeleteModalOpen(true);
+            }}
+            className="p-2 hover:bg-red-50 rounded-lg transition-all text-gray-400 hover:text-red-600"
+          >
+            <Trash2 size={18} />
+          </button>
+        </div>
       ),
-      className: 'w-20 text-center'
+      className: 'w-32'
     }
   ];
 
@@ -103,7 +135,10 @@ const CustomersPage = () => {
           <p className="text-gray-500 font-medium">Manage your client relationships and billing details.</p>
         </div>
         <button 
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => {
+            setCustomerToEdit(null);
+            setIsModalOpen(true);
+          }}
           className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-indigo-200"
         >
           <Plus size={20} />
@@ -127,9 +162,10 @@ const CustomersPage = () => {
       <Modal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
-        title="Add New Customer"
+        title={customerToEdit ? "Edit Customer" : "Create New Customer"}
       >
         <CustomerForm 
+          initialData={customerToEdit}
           onSuccess={() => {
             setIsModalOpen(false);
             fetchCustomers();
@@ -137,6 +173,16 @@ const CustomersPage = () => {
           onCancel={() => setIsModalOpen(false)} 
         />
       </Modal>
+
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDelete}
+        title="Delete Customer"
+        message={`Are you sure you want to delete "${customerToDelete?.name}"? This will remove all their data from the system and may affect linked invoices.`}
+        confirmLabel="Delete Customer"
+        isDestructive={true}
+      />
     </div>
 
   );

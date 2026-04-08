@@ -14,8 +14,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Erabiz POS",
-  description: "Business management dashboard",
+  title: "ERA Biz - Empowering your business",
+  description: "Advanced POS and business management dashboard",
+  icons: {
+    icon: "/logo.svg",
+    apple: "/logo.svg",
+  },
 };
 
 export default function RootLayout({

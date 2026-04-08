@@ -5,7 +5,8 @@ import { Table } from '@/components/ui/Table';
 import { Modal } from '@/components/ui/Modal';
 import { InvoicePreview } from '@/components/invoices/InvoicePreview';
 import api from '@/lib/api';
-import { Plus, Search, Calendar, FileText, MoreHorizontal, Printer } from 'lucide-react';
+import { Plus, Search, Calendar, FileText, MoreHorizontal, Printer, Edit, Trash2, Send } from 'lucide-react';
+import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import Link from 'next/link';
@@ -37,6 +38,8 @@ const InvoicesPage = () => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [invoiceToDelete, setInvoiceToDelete] = useState<Invoice | null>(null);
 
   const fetchInvoices = async () => {
     setLoading(true);
@@ -63,6 +66,27 @@ const InvoicesPage = () => {
     }
   };
 
+  const markAsSent = async (id: number) => {
+    try {
+      await api.patch(`/invoices/${id}/send`);
+      fetchInvoices();
+      setSelectedInvoice(null);
+    } catch (error) {
+      console.error('Failed to mark as sent', error);
+    }
+  };
+
+  const deleteInvoice = async () => {
+    if (!invoiceToDelete) return;
+    try {
+      await api.delete(`/invoices/${invoiceToDelete.id}`);
+      fetchInvoices();
+      setIsDeleteModalOpen(false);
+    } catch (error) {
+      console.error('Failed to delete invoice', error);
+    }
+  };
+
   const handlePrint = () => {
     window.print();
   };
@@ -70,7 +94,7 @@ const InvoicesPage = () => {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'LKR',
     }).format(value);
   };
 
@@ -150,8 +174,22 @@ const InvoicesPage = () => {
               Mark Paid
             </button>
           )}
-          <button className="p-2 hover:bg-gray-100 rounded-lg transition-all text-gray-400 hover:text-gray-600">
-            <MoreHorizontal size={20} />
+          <Link 
+            href={`/sales/invoices/${inv.id}`}
+            onClick={(e) => e.stopPropagation()}
+            className="p-2 hover:bg-indigo-50 rounded-lg transition-all text-gray-400 hover:text-indigo-600"
+          >
+            <Edit size={18} />
+          </Link>
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              setInvoiceToDelete(inv);
+              setIsDeleteModalOpen(true);
+            }}
+            className="p-2 hover:bg-red-50 rounded-lg transition-all text-gray-400 hover:text-red-600"
+          >
+            <Trash2 size={18} />
           </button>
         </div>
       ),
@@ -210,6 +248,15 @@ const InvoicesPage = () => {
               <Printer size={18} />
               Print / Save PDF
             </button>
+            {selectedInvoice?.status === 'awaiting_payment' && (
+              <button 
+                onClick={() => markAsSent(selectedInvoice!.id)}
+                className="flex items-center gap-2 px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-xl font-bold transition-all"
+              >
+                <Send size={18} />
+                Mark as Sent
+              </button>
+            )}
             {selectedInvoice?.status !== 'paid' && (
               <button 
                 onClick={() => {
@@ -231,6 +278,16 @@ const InvoicesPage = () => {
       <div className="hidden print:block fixed inset-0 z-[100] bg-white">
         <InvoicePreview invoice={selectedInvoice} />
       </div>
+
+      <ConfirmationModal 
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={deleteInvoice}
+        title="Delete Invoice"
+        message={`Are you sure you want to delete invoice ${invoiceToDelete?.number}? This action cannot be undone.`}
+        confirmText="Delete Invoice"
+        variant="destructive"
+      />
     </div>
   );
 };

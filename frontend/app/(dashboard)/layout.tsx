@@ -2,9 +2,11 @@
 
 import React, { useEffect, useState } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
-import { Bell, Search, User, Loader2 } from 'lucide-react';
+import { User, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
+import Image from 'next/image';
+import Link from 'next/link';
 
 export default function DashboardLayout({
   children,
@@ -14,6 +16,12 @@ export default function DashboardLayout({
   const router = useRouter();
   const [isAuth, setIsAuth] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -45,33 +53,34 @@ export default function DashboardLayout({
 
   return (
 
-    <div className="flex bg-gray-50 min-h-screen">
+    <div className="relative z-0 flex bg-gray-50 min-h-screen">
       <Sidebar />
-      <main className="flex-1 flex flex-col">
-        {/* Top Header */}
-        <header className="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-8 sticky top-0 z-10">
-          <div className="flex items-center gap-4 bg-gray-50 px-4 py-2 rounded-xl w-96 border border-gray-100">
-            <Search size={18} className="text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search invoices, customers..."
-              className="bg-transparent border-none outline-hidden text-sm w-full text-gray-700"
-            />
+      <main className="relative z-0 flex-1 flex flex-col">
+        {/* Sleek Title Section */}
+        <header className="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-8 sticky top-0 z-20">
+          <div className="flex items-center gap-8">
+            {/* Left side empty or for other utilities if needed */}
           </div>
 
-          <div className="flex items-center gap-6">
-            <button className="relative p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-all">
-              <Bell size={22} />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-            </button>
 
-            <div className="flex items-center gap-3 pl-4 border-l border-gray-100">
+          <div className="flex items-center gap-8">
+            {/* Live Time & Date */}
+            <div className="text-right flex flex-col justify-center border-r border-gray-100 pr-8">
+              <span className="text-lg font-black text-gray-900 tracking-tight leading-none">
+                {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
+              </span>
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
+                {time.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-4">
               <div className="text-right">
-                <p className="text-sm font-bold text-gray-900">{user?.name || 'Loading...'}</p>
-                <p className="text-xs text-gray-500">{user?.role || 'Accessing...'}</p>
+                <p className="text-sm font-black text-gray-900 leading-tight">{user?.name || 'Loading...'}</p>
+                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">{user?.role || 'User'}</p>
               </div>
-              <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 border border-indigo-200">
-                <User size={20} />
+              <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
+                <User size={18} />
               </div>
             </div>
 
