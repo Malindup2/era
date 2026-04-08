@@ -8,8 +8,10 @@ import { ItemsModule } from './items/items.module';
 import { InvoicesModule } from './invoices/invoices.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { QuotationsModule } from './quotations/quotations.module';
+import { CreditNotesModule } from './credit-notes/credit-notes.module';
 
 @Module({
+
 
   imports: [
     ConfigModule.forRoot({
@@ -36,7 +38,9 @@ import { QuotationsModule } from './quotations/quotations.module';
     InvoicesModule,
     DashboardModule,
     QuotationsModule,
+    CreditNotesModule,
   ],
+
 
 
 

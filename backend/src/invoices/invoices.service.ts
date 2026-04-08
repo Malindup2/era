@@ -10,7 +10,7 @@ export class InvoicesService {
     private repo: Repository<Invoice>,
   ) {}
 
-  async create(data: any, userId: number) {
+  async create(data: any, userId: number): Promise<Invoice> {
     const lastInvoice = await this.repo.findOne({
       where: { userId },
       order: { id: 'DESC' },
@@ -26,8 +26,10 @@ export class InvoicesService {
       ...data,
       userId,
       number: nextNumber,
-    });
+    }) as any as Invoice;
+
     return this.repo.save(invoice);
+
   }
 
   findAll(userId: number) {

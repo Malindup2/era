@@ -3,15 +3,15 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { 
-  LayoutDashboard, 
-  Package, 
-  ShoppingCart, 
-  ChevronDown, 
-  ChevronRight, 
-  FileText, 
-  Users, 
-  Quote, 
+import {
+  LayoutDashboard,
+  Package,
+  ShoppingCart,
+  ChevronDown,
+  ChevronRight,
+  FileText,
+  Users,
+  Quote,
   Receipt,
   LogOut,
   Building2
@@ -44,7 +44,7 @@ const Sidebar = () => {
       <div className="p-6">
         <div className="flex items-center gap-2 text-indigo-600 mb-8">
           <Building2 size={32} strokeWidth={2.5} />
-          <span className="text-xl font-black tracking-tight text-gray-900">SkillTech POS</span>
+          <span className="text-xl font-black tracking-tight text-gray-900">Erabiz POS</span>
         </div>
 
         <nav className="space-y-1">
@@ -54,8 +54,8 @@ const Sidebar = () => {
               href={item.href}
               className={cn(
                 "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group text-sm font-medium",
-                pathname === item.href 
-                  ? "bg-indigo-50 text-indigo-600 shadow-xs" 
+                pathname === item.href
+                  ? "bg-indigo-50 text-indigo-600 shadow-xs"
                   : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
               )}
             >
@@ -90,8 +90,8 @@ const Sidebar = () => {
                     href={item.href}
                     className={cn(
                       "flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all text-xs font-medium",
-                      pathname === item.href 
-                        ? "text-indigo-600 bg-indigo-50/50" 
+                      pathname === item.href
+                        ? "text-indigo-600 bg-indigo-50/50"
                         : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
                     )}
                   >
