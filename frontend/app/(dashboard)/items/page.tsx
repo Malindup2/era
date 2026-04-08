@@ -2,14 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { Table } from '@/components/ui/Table';
+import { Modal } from '@/components/ui/Modal';
+import { ItemForm } from '@/components/items/ItemForm';
 import api from '@/lib/api';
 import { Plus, Search, Package, MoreHorizontal, Tag } from 'lucide-react';
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
 
 interface Item {
   id: number;
@@ -20,21 +16,31 @@ interface Item {
   saleTax: string;
 }
 
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
 const ItemsPage = () => {
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const fetchItems = async () => {
+    setLoading(true);
+    try {
+      const res = await api.get('/items');
+      setItems(res.data);
+    } catch (error) {
+      console.error('Failed to fetch items', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchItems = async () => {
-      try {
-        const res = await api.get('/items');
-        setItems(res.data);
-      } catch (error) {
-        console.error('Failed to fetch items', error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchItems();
   }, []);
 
@@ -44,6 +50,8 @@ const ItemsPage = () => {
       currency: 'USD',
     }).format(value);
   };
+
+
 
   const columns = [
     { 
@@ -109,7 +117,10 @@ const ItemsPage = () => {
           <h1 className="text-3xl font-black text-gray-900 tracking-tight">Items & Inventory</h1>
           <p className="text-gray-500 font-medium">Manage your products and services catalog.</p>
         </div>
-        <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-indigo-200">
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-indigo-200"
+        >
           <Plus size={20} />
           Add New Item
         </button>
@@ -127,7 +138,22 @@ const ItemsPage = () => {
       </div>
 
       <Table columns={columns as any} data={items} isLoading={loading} />
+
+      <Modal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        title="Add New Item"
+      >
+        <ItemForm 
+          onSuccess={() => {
+            setIsModalOpen(false);
+            fetchItems();
+          }} 
+          onCancel={() => setIsModalOpen(false)} 
+        />
+      </Modal>
     </div>
+
   );
 };
 

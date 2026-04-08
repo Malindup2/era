@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { Table } from '@/components/ui/Table';
+import { Modal } from '@/components/ui/Modal';
+import { CustomerForm } from '@/components/customers/CustomerForm';
 import api from '@/lib/api';
 import { Plus, Search, Mail, Phone, MapPin, MoreHorizontal } from 'lucide-react';
 
@@ -17,20 +19,24 @@ interface Customer {
 const CustomersPage = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const fetchCustomers = async () => {
+    setLoading(true);
+    try {
+      const res = await api.get('/customers');
+      setCustomers(res.data);
+    } catch (error) {
+      console.error('Failed to fetch customers', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchCustomers = async () => {
-      try {
-        const res = await api.get('/customers');
-        setCustomers(res.data);
-      } catch (error) {
-        console.error('Failed to fetch customers', error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchCustomers();
   }, []);
+
 
   const columns = [
     { 
@@ -89,7 +95,10 @@ const CustomersPage = () => {
           <h1 className="text-3xl font-black text-gray-900 tracking-tight">Customers</h1>
           <p className="text-gray-500 font-medium">Manage your client relationships and billing details.</p>
         </div>
-        <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-indigo-200">
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-indigo-200"
+        >
           <Plus size={20} />
           New Customer
         </button>
@@ -107,7 +116,22 @@ const CustomersPage = () => {
       </div>
 
       <Table columns={columns as any} data={customers} isLoading={loading} />
+
+      <Modal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        title="Add New Customer"
+      >
+        <CustomerForm 
+          onSuccess={() => {
+            setIsModalOpen(false);
+            fetchCustomers();
+          }} 
+          onCancel={() => setIsModalOpen(false)} 
+        />
+      </Modal>
     </div>
+
   );
 };
 
