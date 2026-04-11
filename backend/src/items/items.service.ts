@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Item } from './entities/item.entity';
+import { Item, ItemType } from './entities/item.entity';
+import { parse } from 'csv-parse/sync';
+import { stringify } from 'csv-stringify/sync';
 
 @Injectable()
 export class ItemsService {
@@ -34,34 +36,49 @@ export class ItemsService {
 
   async exportToCsv(userId: number) {
     const items = await this.findAll(userId);
-    const header = ['code', 'name', 'type', 'salePrice', 'saleTax', 'description'];
-    const rows = items.map(item => [
-      item.code,
-      item.name,
-      item.type,
-      item.salePrice,
-      item.saleTax || '',
-      item.description || '',
-    ].join(','));
-    return [header.join(','), ...rows].join('\n');
+    return stringify(items, {
+      header: true,
+      columns: {
+        code: 'code',
+        name: 'name',
+        type: 'type',
+        salePrice: 'salePrice',
+        saleTax: 'saleTax',
+        description: 'description',
+      },
+    });
   }
 
   async importFromCsv(csvContent: string, userId: number) {
-    const lines = csvContent.split('\n').filter(line => line.trim());
-    if (lines.length < 2) return { imported: 0 };
+    const records = parse(csvContent, {
+      columns: true,
+      skip_empty_lines: true,
+      trim: true,
+    }) as Record<string, string>[];
 
-    const header = lines[0].split(',').map(h => h.trim());
-    const dataLines = lines.slice(1);
-    
+    if (records.length === 0) return { imported: 0 };
+
     let importedCount = 0;
-    for (const line of dataLines) {
-      const values = line.split(',').map(v => v.trim());
-      const itemData: any = {};
-      header.forEach((h, i) => {
-        itemData[h] = values[i];
-      });
+    for (const record of records) {
+      const normalizedType =
+        record.type?.trim().toLowerCase() === ItemType.SERVICE
+          ? ItemType.SERVICE
+          : ItemType.PRODUCT;
 
-      // Business Logic: Overwrite if code already exists for this user
+      const itemData = {
+        code: record.code?.trim(),
+        name: record.name?.trim(),
+        type: normalizedType,
+        salePrice: Number(record.salePrice ?? 0),
+        saleTax: record.saleTax?.trim() || 'No Tax',
+        description: record.description?.trim() || '',
+      };
+
+      if (!itemData.code || !itemData.name) {
+        continue;
+      }
+
+      // Business logic: overwrite if code already exists for this user.
       const existing = await this.repo.findOne({ where: { code: itemData.code, userId } });
       if (existing) {
         await this.repo.update({ id: existing.id }, { ...itemData, userId });

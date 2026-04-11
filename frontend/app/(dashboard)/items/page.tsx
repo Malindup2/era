@@ -228,6 +228,14 @@ const ItemsPage = () => {
         </div>
       </div>
 
+      <div className="rounded-2xl border border-dashed border-indigo-200 bg-indigo-50/60 px-5 py-4 text-sm text-gray-700 shadow-sm">
+        <p className="font-bold text-indigo-900 mb-1">CSV import format</p>
+        <p className="leading-6">
+          Use these columns in the first row: <span className="font-semibold">code, name, type, salePrice, saleTax, description</span>.
+          Example: <span className="font-mono text-gray-900">ITEM-001,Wireless Mouse,product,2500,No Tax,Ergonomic mouse</span>
+        </p>
+      </div>
+
       <Table columns={columns as any} data={items} isLoading={loading} />
 
       <Modal 

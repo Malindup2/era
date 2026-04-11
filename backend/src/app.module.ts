@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import * as fs from 'fs';
+import * as path from 'path';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { CustomersModule } from './customers/customers.module';
@@ -21,14 +23,18 @@ import { CreditNotesModule } from './credit-notes/credit-notes.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        type: 'mysql',
+        type: 'postgres',
         host: configService.get<string>('DB_HOST'),
-        port: configService.get<number>('DB_PORT'),
+        port: configService.get<number>('DB_PORT') || 5432,
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
         autoLoadEntities: true,
-        synchronize: true, // Set to false in production
+        synchronize: configService.get<string>('NODE_ENV') !== 'production',
+        ssl: configService.get<string>('NODE_ENV') === 'production' || configService.get<string>('DB_HOST')?.includes('rds.amazonaws.com') ? {
+          ca: fs.readFileSync(path.join(process.cwd(), 'global-bundle.pem')),
+          rejectUnauthorized: true,
+        } : false,
       }),
     }),
     UsersModule,
